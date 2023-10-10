@@ -3,14 +3,12 @@ from typing import Optional
 import numpy as np
 
 from src.data_helper import split_data, Data
-from src.utils.file_helper import get_dataset_file
 import pandas as pd
 from sklearn.metrics import mutual_info_score
 from sklearn.linear_model import LogisticRegression, Ridge
 
-
-DATASET_URL = "https://raw.githubusercontent.com/alexeygrigorev/mlbookcamp-code/master/chapter-02-car-price/data.csv"
-CATEGORICAL_COLUMNS = ['make', 'model', 'transmission_type', 'vehicle_style']
+from tasks.common_dataset_steps import CATEGORICAL_COLUMNS, NUMERIC_COLUMNS, prepare_dataset, prepare_target_column, \
+    TARGET_NAME
 
 
 # TODO: Move this to src
@@ -51,30 +49,12 @@ def _get_data_for_training(cars_full_df: pd.DataFrame, drop_column: Optional[str
         cars_without_price_df.drop(drop_column, axis="columns", inplace=True)
 
     cars_one_hot_encoding_df = pd.get_dummies(cars_without_price_df, columns=one_hot_columns)
-    return split_data(cars_one_hot_encoding_df, target_name)
+    return split_data(cars_one_hot_encoding_df, TARGET_NAME)
 
 
 if __name__ == "__main__":
-    # Get dataset to car_dataset file and load it to dataframe
-    file_name = get_dataset_file(DATASET_URL, "cars_dataset")
 
-    cars_full_df = pd.read_csv(file_name)
-
-    # Prepare test data
-
-    # TODO: Move this to separate method to src
-    cars_full_df.columns = cars_full_df.columns.str.replace(" ", "_").str.lower()
-
-    active_columns = ["make", 'model', 'year', 'engine_hp', 'engine_cylinders', 'transmission_type', 'vehicle_style', 'highway_mpg', 'city_mpg', "msrp"]
-    numeric_columns = ['year', 'engine_hp', 'engine_cylinders', 'highway_mpg', 'city_mpg', 'price']
-    categorical_columns = ['make', 'model', 'transmission_type', 'vehicle_style']
-    cars_full_df = cars_full_df[active_columns]
-
-    for na_column, na_sum in cars_full_df.isna().sum().items():
-        if na_sum > 0:
-            cars_full_df[na_column].fillna(0, inplace=True)
-
-    cars_full_df.rename(columns={"msrp": "price"}, inplace=True)
+    cars_full_df = prepare_dataset()
 
     # Question 1: What is the most frequent observation (mode) for the column transmission_type
 
@@ -84,7 +64,7 @@ if __name__ == "__main__":
 
     # Question 2: What are the two features that have the biggest correlation in this dataset?
 
-    correlation_matrix = cars_full_df[numeric_columns].corr()
+    correlation_matrix = cars_full_df[NUMERIC_COLUMNS].corr()
 
     print("Question 2: What are the two features that have the biggest correlation in this dataset?")
     print(f"Correlations for numeric values in dataset is \n{correlation_matrix.unstack().sort_values()}")
@@ -92,21 +72,18 @@ if __name__ == "__main__":
 
     # Make price value binary
 
-    target_name = "above_average"
-
-    mean_price = cars_full_df["price"].mean()
-    cars_full_df[target_name] = (cars_full_df["price"] > mean_price).astype('int')
+    cars_full_df = prepare_target_column(cars_full_df)
 
     # Split data
 
-    data = split_data(cars_full_df, target_name)
+    data = split_data(cars_full_df, TARGET_NAME)
 
     # Question 3: Which of these variables has the lowest mutual information score?
 
     # TODO: Move this to separate method to src
 
     mutual_variables = {}
-    for category in categorical_columns:
+    for category in CATEGORICAL_COLUMNS:
         mutual_score = mutual_info_score(data.train.X[category], data.train.y)
         mutual_variables[category] = round(mutual_score, 2)
 
@@ -145,17 +122,15 @@ if __name__ == "__main__":
 
     cars_full_df.drop("above_average", axis="columns", inplace=True)
 
-    target_name = "price"
-    cars_full_df[target_name] = np.log1p(cars_full_df[target_name])
+    TARGET_NAME = "price"
+    cars_full_df[TARGET_NAME] = np.log1p(cars_full_df[TARGET_NAME])
 
     cars_one_hot_encoding_df = pd.get_dummies(cars_full_df, columns=CATEGORICAL_COLUMNS)
-    data = split_data(cars_one_hot_encoding_df, target_column=target_name)
+    data = split_data(cars_one_hot_encoding_df, target_column=TARGET_NAME)
 
-    for alpha in alphas:
-        rmses[alpha] = predict_and_get_rmse(data, alpha)
+    # for alpha in alphas:
+    #     rmses[alpha] = predict_and_get_rmse(data, alpha)
 
     print("Question 6: Which of these alphas leads to the best RMSE on the validation set? \n")
     print(f"Alpha that leads to the best RMSE is ZERO")
 
-
-    assert not cars_full_df.empty
