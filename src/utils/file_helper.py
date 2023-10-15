@@ -7,7 +7,7 @@ import wget
 DESTINATION_FOLDER = "../etc"
 
 
-def get_dataset_file(file_url: str, file_name: str) -> str:
+def get_file_by_url(file_url: str, file_name: str) -> str:
     """Get file from remote url and save it to destination_file
 
     :param file_url: url from where file should be downloaded

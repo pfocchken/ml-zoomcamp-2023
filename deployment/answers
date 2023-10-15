@@ -1,0 +1,25 @@
+Question 1: What's the version of pipenv you installed?
+
+pipenv, version 2023.10.3
+
+Question 2: What's the first hash for scikit-learn you get in Pipfile.lock?
+
+sha256:0c275a06c5190c5ce00af0acbb61c06374087949f643ef32d355ece12c4db043
+
+Question 3: What's the probability that this client will get a credit?
+
+Credit score is [0.90193093]
+
+Question 4: What's the probability that this client will get a credit?
+
+Credit score is [0.14]
+
+Question 5: So what's the size of this base image?
+
+Size of this image is: 147 MB
+
+Question 6: 
+
+probability is 0.726936946355423
+
+

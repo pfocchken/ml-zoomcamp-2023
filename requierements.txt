@@ -5,3 +5,4 @@ pandas
 scipy
 wget
 scikit-learn
+flask

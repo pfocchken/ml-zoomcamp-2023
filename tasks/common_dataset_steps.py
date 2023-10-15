@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.utils.file_helper import get_dataset_file
+from src.utils.file_helper import get_file_by_url
 
 
 # TODO: This need to be wrapped with class - CONSTANTS are variables, etc
@@ -14,7 +14,7 @@ TARGET_NAME = "above_average"
 
 def prepare_dataset() -> pd.DataFrame:
     # Get dataset to car_dataset file and load it to dataframe
-    file_name = get_dataset_file(DATASET_URL, "cars_dataset")
+    file_name = get_file_by_url(DATASET_URL, "cars_dataset")
 
     cars_full_df = pd.read_csv(file_name)
 
